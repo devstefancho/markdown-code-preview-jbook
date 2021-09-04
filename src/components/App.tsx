@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import * as esbuild from 'esbuild-wasm';
+import * as esbuild from "esbuild-wasm";
 import { unpkgPathPlugin } from "../plugins/unpkg-path-plugin";
 import { fetchPlugin } from "../plugins/fetch-plugin";
+import CodeEditor from "./code-editor";
 
 const App = () => {
   const ref = useRef<any>();
@@ -25,7 +26,7 @@ const App = () => {
       return;
     }
 
-    console.log(iframeRef.current)
+    console.log(iframeRef.current);
     iframeRef.current.scrdoc = html;
 
     const result = await ref.current.build({
@@ -46,7 +47,10 @@ const App = () => {
     // setCode(result.code);
 
     // setCode(result.outputFiles[0].text);
-    iframeRef.current.contentWindow.postMessage(result.outputFiles[0].text, '*');
+    iframeRef.current.contentWindow.postMessage(
+      result.outputFiles[0].text,
+      "*"
+    );
   };
 
   const html = `
@@ -70,6 +74,7 @@ const App = () => {
 
   return (
     <div>
+      <CodeEditor initialValue="const a = 1;" />
       <textarea value={input} onChange={(e) => setInput(e.target.value)} />
       <div>
         <button onClick={onClick}>Submit</button>
@@ -78,7 +83,6 @@ const App = () => {
       <iframe ref={iframeRef} sandbox="allow-scripts" srcDoc={html} />
     </div>
   );
-}
+};
 
 export default App;
-
