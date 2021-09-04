@@ -8,15 +8,16 @@ import parser from "prettier/parser-babel";
 
 interface CodeEditorProps {
   initialValue: string;
+  onChange: (str: string) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ initialValue, onChange }) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const onEditorDidMount: EditorDidMount = (getValue, monacoEditor) => {
     editorRef.current = monacoEditor;
     // detect text change
     monacoEditor.onDidChangeModelContent(() => {
-      // console.log(getValue());
+      onChange(getValue());
     });
 
     monacoEditor.updateOptions({ tabSize: 2 });

@@ -1,59 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import * as esbuild from "esbuild-wasm";
-import { unpkgPathPlugin } from "../plugins/unpkg-path-plugin";
-import { fetchPlugin } from "../plugins/fetch-plugin";
+import bundler from "../bundler/bundler";
 import CodeEditor from "./code-editor";
 
-const App = () => {
-  const ref = useRef<any>();
-  const iframeRef = useRef<any>();
-  const [input, setInput] = useState("");
-  const [code, setCode] = useState("");
-
-  const startService = async () => {
-    ref.current = await esbuild.startService({
-      worker: true,
-      wasmURL: "https://unpkg.com/esbuild-wasm@0.8.27/esbuild.wasm", // url is public/esbuild.wasm
-    });
-  };
-
-  useEffect(() => {
-    startService();
-  }, []);
-
-  const onClick = async () => {
-    if (!ref.current) {
-      return;
-    }
-
-    console.log(iframeRef.current);
-    iframeRef.current.scrdoc = html;
-
-    const result = await ref.current.build({
-      entryPoints: ["index.js"],
-      bundle: true,
-      write: false,
-      plugins: [unpkgPathPlugin(), fetchPlugin(input)],
-      define: {
-        "process.env.NODE_ENV": '"production"',
-        global: "window", // replace global to window
-      },
-    });
-
-    // const result = await ref.current.transform(input, {
-    //   loader: 'jsx',
-    //   target: ['es2015'],
-    // });
-    // setCode(result.code);
-
-    // setCode(result.outputFiles[0].text);
-    iframeRef.current.contentWindow.postMessage(
-      result.outputFiles[0].text,
-      "*"
-    );
-  };
-
-  const html = `
+const html = `
     <html>
       <head></head>
       <body>
@@ -72,14 +21,25 @@ const App = () => {
     </html>
   `;
 
+const App = () => {
+  const iframeRef = useRef<any>();
+  const prevCodeRef = useRef<string>("");
+  const [code, setCode] = useState<string>("");
+
+  const onClick = async () => {
+    if (prevCodeRef.current === code) return;
+
+    const output = await bundler(code);
+    iframeRef.current.scrdoc = html;
+    iframeRef.current.contentWindow.postMessage(output, "*");
+    setCode(output);
+    prevCodeRef.current = output;
+  };
+
   return (
     <div>
-      <CodeEditor initialValue="const a = 1;" />
-      <textarea value={input} onChange={(e) => setInput(e.target.value)} />
-      <div>
-        <button onClick={onClick}>Submit</button>
-      </div>
-      {/* <pre>{code}</pre> */}
+      <CodeEditor initialValue="" onChange={setCode} />
+      <button onClick={onClick}>Submit</button>
       <iframe ref={iframeRef} sandbox="allow-scripts" srcDoc={html} />
     </div>
   );
