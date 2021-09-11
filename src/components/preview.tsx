@@ -1,3 +1,4 @@
+import "./preview.css";
 import { useEffect, useRef } from "react";
 
 interface CodeCellProps {
@@ -12,6 +13,7 @@ const html = `
         <script>
           window.addEventListener('message', (event) => {
             try {
+              root.innerHTML = '';
               eval(event.data);
             } catch (error) {
               const root = document.querySelector('#root');
@@ -28,12 +30,13 @@ const Preview: React.FC<CodeCellProps> = ({ code }) => {
 
   useEffect(() => {
     iframeRef.current.scrdoc = html;
-    iframeRef.current.contentWindow.postMessage(code, "*");
-    console.log(code);
+    setTimeout(() => {
+      iframeRef.current.contentWindow.postMessage(code, "*");
+    }, 50);
   }, [code]);
 
   return (
-    <div>
+    <div className="preview-wrapper">
       <iframe ref={iframeRef} sandbox="allow-scripts" srcDoc={html} />
     </div>
   );

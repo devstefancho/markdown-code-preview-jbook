@@ -1,6 +1,12 @@
 .editor-wrapper {
   position: relative;
   height: 100%;
+  width: calc(100% - 10px);
+}
+
+.resize-horizontal {
+  display: flex;
+  flex-direction: row;
 }
 
 .editor-wrapper .button-format {
