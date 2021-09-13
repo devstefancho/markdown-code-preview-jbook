@@ -10,6 +10,13 @@
   overflow: hidden;
 }
 
+.preview-error {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: red;
+}
+
 /* fix resize bug when entering into iframe */
 .react-draggable-transparent-selection .preview-wrapper::after {
   content: "";
