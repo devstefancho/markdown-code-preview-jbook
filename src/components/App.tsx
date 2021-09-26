@@ -1,4 +1,3 @@
-import TextEditor from './text-editor';
 import { Provider } from 'react-redux';
 import { store } from '../redux';
 import CellList from './cell-list';

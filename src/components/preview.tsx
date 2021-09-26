@@ -1,5 +1,5 @@
-import "./preview.css";
-import { useEffect, useRef } from "react";
+import './preview.css';
+import { useEffect, useRef } from 'react';
 
 interface CodeCellProps {
   code: string;
@@ -39,14 +39,19 @@ const Preview: React.FC<CodeCellProps> = ({ code, err }) => {
   useEffect(() => {
     iframeRef.current.scrdoc = html;
     setTimeout(() => {
-      iframeRef.current.contentWindow.postMessage(code, "*");
+      iframeRef.current.contentWindow.postMessage(code, '*');
     }, 50);
   }, [code]);
 
   return (
-    <div className="preview-wrapper">
-      <iframe ref={iframeRef} sandbox="allow-scripts" srcDoc={html} />
-      {err && <div className="preview-error">{err}</div>}
+    <div className='preview-wrapper'>
+      <iframe
+        title='preview'
+        ref={iframeRef}
+        sandbox='allow-scripts'
+        srcDoc={html}
+      />
+      {err && <div className='preview-error'>{err}</div>}
     </div>
   );
 };
