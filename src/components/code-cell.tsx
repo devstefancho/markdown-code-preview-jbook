@@ -6,6 +6,7 @@ import Resizable from './resizable';
 import { Cell } from '../redux';
 import { useActions } from '../hooks/use-actions';
 import { useTypedSelector } from '../hooks/use-typed-selector';
+import { useCumulativeCode } from '../hooks/use-cumulative-code';
 
 interface CellCodeProps {
   cell: Cell;
@@ -13,55 +14,23 @@ interface CellCodeProps {
 
 const CodeCell: React.FC<CellCodeProps> = ({ cell }) => {
   const bundle = useTypedSelector((state) => state.bundles[cell.id]);
-  const cumulativeCode = useTypedSelector((state) => {
-    const { data, order } = state.cells;
-    const orderedData = order.map((id) => data[id]);
-
-    const cumulativeCode = [
-      `
-      import _React from 'react';
-      import _ReactDOM from 'react-dom';
-      const show = (input) => {
-        const root = document.querySelector('#root');
-        if (typeof input === 'object') {
-          console.log(input)
-          if (input.$$typeof && input.props) {
-            _ReactDOM.render(input, root);
-          } else {
-            root.innerHTML = JSON.stringify(input);
-          }
-        } else {
-          root.innerHTML = input;
-        }
-      }
-      `,
-    ];
-    for (let c of orderedData) {
-      if (c.type === 'code') {
-        cumulativeCode.push(c.content);
-      }
-      if (c.id === cell.id) {
-        break;
-      }
-    }
-    return cumulativeCode;
-  });
   const { updateCell, createBundle } = useActions();
+  const cumulativeCode = useCumulativeCode(cell.id);
 
   useEffect(() => {
     if (!bundle) {
-      createBundle(cell.id, cumulativeCode.join('\n'));
+      createBundle(cell.id, cumulativeCode);
       return;
     }
 
     const timer = setTimeout(async () => {
-      createBundle(cell.id, cumulativeCode.join('\n'));
+      createBundle(cell.id, cumulativeCode);
     }, 1000);
     return () => {
       clearTimeout(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cell.id, cumulativeCode.join('\n'), createBundle]);
+  }, [cell.id, cumulativeCode, createBundle]);
 
   return (
     <Resizable direction='vertical'>
